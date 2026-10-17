@@ -1,0 +1,15 @@
+# Build artefacts
+build/
+
+# Report output
+leak_report.txt
+
+# Editor/IDE files
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
