@@ -23,6 +23,7 @@
 #define MEMTRACK_H
 
 #include <stddef.h>   /* size_t */
+#include <stdlib.h>   /* standard allocator declarations before macros */
 
 /* ------------------------------------------------------------------ */
 /*  Tracked allocation functions – declared here, defined in           */

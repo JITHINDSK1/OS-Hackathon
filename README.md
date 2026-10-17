@@ -109,21 +109,29 @@ On the **first** tracked allocation, `memtrack_report()` is registered with `ate
 
 ---
 
-## Sample Output
+## Sample Output (Real Terminal Runs)
 
-### demo_leak (3 leaks)
+See full logs in [`docs/SAMPLE_OUTPUT.md`](file:///d:/OS%20PROJECT/memleak-detector/docs/SAMPLE_OUTPUT.md).
 
-```
+### demo_leak (`make run-leak`)
+
+```text
+$ make run-leak
+
+=== Running demo_leak ===
+./build/demo_leak
 === demo_leak: intentional memory problems ===
 
-Allocated 'name'    at 0x55a1b2c3d010 (will be leaked)
-Allocated 'numbers' at 0x55a1b2c3d080 (will be leaked)
-Allocated 'buf'     at 0x55a1b2c3d0c0 (will be leaked)
+Allocated 'name' at 0x55a1004162a0 (will be leaked)
+Allocated 'numbers' at 0x55a100416300 (will be leaked)
+Allocated 'buf' at 0x55a100416340 (will be leaked)
 
 --- Triggering double free on 'name' ---
-[memtrack] WARNING: Invalid/double free of pointer 0x55a1b2c3d010 at demo_leak.c:43
+[memtrack] WARNING: Invalid/double free of pointer 0x55a1004162a0 at examples/demo_leak.c:43
 --- Triggering invalid free of a stack variable ---
-[memtrack] WARNING: Invalid/double free of pointer 0x7ffc... at demo_leak.c:48
+[memtrack] WARNING: Invalid/double free of pointer 0x7ffd5102abac at examples/demo_leak.c:48
+
+(Program ending – memtrack_report will fire via atexit)
 
 ╔══════════════════════════════════════════════════════════════╗
 ║          MEMORY LEAK DETECTION REPORT (memtrack)            ║
@@ -133,26 +141,46 @@ Allocated 'buf'     at 0x55a1b2c3d0c0 (will be leaked)
 
   Address             Bytes     Allocated at
   ------------------  --------  ----------------------------
-  0x55a1b2c3d0c0      256       demo_leak.c:36
-  0x55a1b2c3d080      40        demo_leak.c:30
-  0x55a1b2c3d010      64        demo_leak.c:24   ← already freed once
+  0x55a100416340      256       examples/demo_leak.c:36
+  0x55a100416300      40        examples/demo_leak.c:30
 
 ┌─────────────────────────────────────────────┐
 │                   SUMMARY                   │
 ├─────────────────────────────────────────────┤
 │  Total allocations  : 3                     │
 │  Total frees        : 1                     │
-│  Leaked blocks      : 3                     │
-│  Leaked bytes       : 360                   │
+│  Leaked blocks      : 2                     │
+│  Leaked bytes       : 296                   │
 │  Peak memory usage  : 360    bytes          │
 └─────────────────────────────────────────────┘
 
   [Report also saved to: leak_report.txt]
 ```
 
-### demo_clean (no leaks)
+### demo_clean (`make run-clean`)
 
-```
+```text
+$ make run-clean
+
+=== Running demo_clean ===
+./build/demo_clean
+=== demo_clean: correct memory management ===
+
+msg = "memtrack is watching..."
+'msg' freed correctly.
+scores[0..4] = 1.5 3.0 4.5 6.0 7.5
+'scores' freed correctly.
+arr initial size: 4 ints
+arr after grow: 8 ints
+arr after shrink: 2 ints = 10, 20
+'arr' freed correctly.
+
+(Program ending – memtrack_report will fire via atexit)
+
+╔══════════════════════════════════════════════════════════════╗
+║          MEMORY LEAK DETECTION REPORT (memtrack)            ║
+╚══════════════════════════════════════════════════════════════╝
+
   ✓  No memory leaks detected. All allocations were freed.
 
 ┌─────────────────────────────────────────────┐
@@ -164,7 +192,49 @@ Allocated 'buf'     at 0x55a1b2c3d0c0 (will be leaked)
 │  Leaked bytes       : 0                     │
 │  Peak memory usage  : 640    bytes          │
 └─────────────────────────────────────────────┘
+
+  [Report also saved to: leak_report.txt]
 ```
+
+### unit tests (`make test`)
+
+```text
+=== Running unit tests ===
+./build/test_memtrack
+
+╔══════════════════════════════════════════════╗
+║        memtrack – Unit Test Suite            ║
+╚══════════════════════════════════════════════╝
+
+  [PASS] malloc_then_free
+  [PASS] malloc_no_free_one_leak
+  [PASS] calloc_zero_initialisation
+  [PASS] realloc_grow_preserves_data
+  [PASS] realloc_shrink_updates_tracking
+[memtrack] WARNING: Invalid/double free of pointer 0x55a1004164a0 at tests/test_memtrack.c:166
+  [PASS] double_free_intercepted
+[memtrack] WARNING: Invalid/double free of pointer 0x7ffd5102abac at tests/test_memtrack.c:185
+  [PASS] invalid_free_intercepted
+  [PASS] peak_memory_high_water_mark
+
+┌──────────────────────────────────────────────┐
+│  Results: 8 PASSED, 0 FAILED                 │
+└──────────────────────────────────────────────┘
+```
+
+---
+
+## Interactive Web Simulator & GitHub Pages
+
+A companion interactive web dashboard and live simulator is located in the `/website` folder.
+
+### Enabling GitHub Pages:
+1. Navigate to your repository on GitHub: `https://github.com/JITHINDSK1/OS-Hackathon`.
+2. Go to **Settings** > **Pages** (under Code and automation).
+3. Under **Build and deployment** > **Branch**:
+   - Select branch: `main`.
+   - Select folder: `/website` (or root `/` if deployed via custom workflow).
+4. Click **Save**. Your site will be published at `https://jithindsk1.github.io/OS-Hackathon/`.
 
 ---
 

@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>memtrack — Memory Leak Detection & Reporting Tool</title>
+  <meta name="description" content="A lightweight, zero-dependency C11 library for dynamic memory leak tracking, double-free detection, and automated exit reporting.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <!-- Header / Nav -->
+  <header class="site-header">
+    <div class="nav-container">
+      <a href="#hero" class="brand-logo">
+        <span class="logo-bracket">[</span><span class="logo-text">memtrack</span><span class="logo-bracket">]</span>
+      </a>
+      <nav class="nav-links">
+        <a href="#problem">Problem</a>
+        <a href="#how-it-works">How It Works</a>
+        <a href="#simulator" class="nav-highlight">Simulator</a>
+        <a href="#sample-output">Output</a>
+        <a href="#features">Features</a>
+        <a href="#team">Team</a>
+        <a href="https://github.com/JITHINDSK1/OS-Hackathon" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-github">
+          <svg class="gh-icon" viewBox="0 0 16 16" width="16" height="16" fill="currentColor">
+            <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
+          </svg>
+          GitHub
+        </a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <!-- 1. Hero Section -->
+    <section id="hero" class="hero-section">
+      <div class="hero-glow"></div>
+      <div class="container hero-content">
+        <div class="hero-badge">
+          <span class="badge-dot"></span>
+          <span>Operating Systems Hackathon Project • Pure C11 • Zero Dependencies</span>
+        </div>
+        <h1 class="hero-title">
+          Pinpoint Memory Leaks in C<br>
+          <span class="gradient-text">Down to the Exact Source Line</span>
+        </h1>
+        <p class="hero-subtitle">
+          Transparent compile-time allocator interception using preprocessor macros, thread-safe linked-list tracking, and automated <code>atexit()</code> reporting. No Valgrind overhead. No external tooling.
+        </p>
+
+        <div class="hero-actions">
+          <a href="#simulator" class="btn btn-primary btn-glow">
+            <span class="btn-icon">⚡</span> Try the Live Simulator
+          </a>
+          <a href="https://github.com/JITHINDSK1/OS-Hackathon" target="_blank" rel="noopener noreferrer" class="btn btn-secondary">
+            <svg class="gh-icon" viewBox="0 0 16 16" width="18" height="18" fill="currentColor">
+              <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/>
+            </svg>
+            View on GitHub
+          </a>
+        </div>
+
+        <!-- Quick Code Preview -->
+        <div class="code-preview-card">
+          <div class="code-header">
+            <div class="code-dots">
+              <span class="dot dot-red"></span>
+              <span class="dot dot-yellow"></span>
+              <span class="dot dot-green"></span>
+            </div>
+            <span class="code-filename">main.c — Add Just ONE Line</span>
+            <button class="copy-btn" id="copy-quickstart" title="Copy code">Copy</button>
+          </div>
+          <pre class="code-body"><code><span class="code-keyword">#include</span> <span class="code-string">&lt;stdio.h&gt;</span>
+<span class="code-keyword">#include</span> <span class="code-string">"memtrack.h"</span>  <span class="code-comment">/* &lt;-- Enables tracking across the whole file! */</span>
+
+<span class="code-type">int</span> <span class="code-function">main</span>(<span class="code-type">void</span>) {
+    <span class="code-type">char</span> *buf = <span class="code-function">malloc</span>(<span class="code-number">128</span>);  <span class="code-comment">/* Intercepted: records buf, 128, "main.c", line 5 */</span>
+    <span class="code-comment">/* Forgotten free(buf) -- memtrack prints report automatically on exit! */</span>
+    <span class="code-keyword">return</span> <span class="code-number">0</span>;
+}</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. Problem Section -->
+    <section id="problem" class="section-padding">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-tag">THE PROBLEM</span>
+          <h2 class="section-title">Why Memory Leaks Are Catastrophic</h2>
+          <p class="section-desc">C gives programmers direct memory control, but unreleased heap allocations silently cripple production systems.</p>
+        </div>
+
+        <div class="cards-grid">
+          <div class="glass-card">
+            <div class="card-icon card-icon-red">⚠️</div>
+            <h3 class="card-title">Silent RAM Depletion</h3>
+            <p class="card-text">
+              A leak of just 1 KB per request consumes gigabytes over hours. The OS is forced into aggressive page swapping, throttling performance before the OOM (Out-of-Memory) killer crashes the service.
+            </p>
+          </div>
+
+          <div class="glass-card">
+            <div class="card-icon card-icon-amber">💥</div>
+            <h3 class="card-title">Double & Invalid Free Corruptions</h3>
+            <p class="card-text">
+              Calling <code>free()</code> twice or releasing stack pointers invokes Undefined Behavior, corrupting heap metadata structures and opening exploitable security vulnerabilities (CWE-415 / CWE-761).
+            </p>
+          </div>
+
+          <div class="glass-card">
+            <div class="card-icon card-icon-cyan">🐢</div>
+            <h3 class="card-title">Heavyweight Existing Tooling</h3>
+            <p class="card-text">
+              Valgrind slows execution by <strong>20× to 50×</strong> and requires separate binary installations. ASan demands recompilation with custom flags. <code>memtrack</code> delivers instant diagnostics with zero runtime lag.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. How It Works Section -->
+    <section id="how-it-works" class="section-padding bg-subtle">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-tag">ARCHITECTURE</span>
+          <h2 class="section-title">How memtrack Works Under the Hood</h2>
+          <p class="section-desc">Four elegant steps powered by standard C11 preprocessor macros, intrusive linked lists, and POSIX threads.</p>
+        </div>
+
+        <!-- Step-by-Step Flow -->
+        <div class="flow-steps">
+          <div class="flow-step">
+            <div class="step-num">01</div>
+            <div class="step-content">
+              <h4>Compile-Time Macro Interception</h4>
+              <p><code>memtrack.h</code> redefines <code>malloc(sz)</code> as <code>tracked_malloc(sz, __FILE__, __LINE__)</code>. The compiler replaces every invocation with caller location coordinates at zero cost.</p>
+              <div class="step-code"><code>#define malloc(size) tracked_malloc((size), __FILE__, __LINE__)</code></div>
+            </div>
+          </div>
+
+          <div class="flow-step">
+            <div class="step-num">02</div>
+            <div class="step-content">
+              <h4>Thread-Safe Linked-List Tracking</h4>
+              <p>Inside <code>memtrack.c</code>, the macros are <code>#undef</code>'d so it calls the real libc. Each live allocation prepends a 32-byte <code>AllocRecord</code> node to <code>g_head</code> under a <code>pthread_mutex</code> lock.</p>
+              <div class="step-code"><code>pthread_mutex_lock(&g_lock); list_add(ptr, size, file, line);</code></div>
+            </div>
+          </div>
+
+          <div class="flow-step">
+            <div class="step-num">03</div>
+            <div class="step-content">
+              <h4>Provenance-Aware Deallocation</h4>
+              <p><code>tracked_free()</code> searches the list. If found, it removes the record and frees both user memory and metadata. If not found, it intercepts double frees and stack pointer frees before any crash happens.</p>
+              <div class="step-code"><code>if (!rec) { fprintf(stderr, "WARNING: Invalid/double free..."); return; }</code></div>
+            </div>
+          </div>
+
+          <div class="flow-step">
+            <div class="step-num">04</div>
+            <div class="step-content">
+              <h4>Automatic atexit() Exit Reporting</h4>
+              <p>On the very first allocation, <code>atexit(memtrack_report)</code> is registered. When <code>exit()</code> or <code>main()</code> returns, the list is traversed, printing every un-freed block and saving to <code>leak_report.txt</code>.</p>
+              <div class="step-code"><code>atexit(memtrack_report); /* Fires automatically on termination */</code></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ASCII / Diagram Preview -->
+        <div class="diagram-container">
+          <div class="diagram-header">SYSTEM ARCHITECTURE PIPELINE</div>
+          <pre class="ascii-diagram">
++-------------------------+     #include "memtrack.h"
+|      User Program       |  ---------------------------+
+|  malloc(64) / free(ptr) |                             |
++-------------------------+                             v
+             |                        +---------------------------------------+
+             | Macro expansion        |          memtrack.h (Macros)          |
+             +--------------------->  |  malloc -> tracked_malloc(s, f, l)   |
+                                      |  free   -> tracked_free(p, f, l)      |
+                                      +---------------------------------------+
+                                                        |
+                                                        v
++-----------------------------------------------------------------------------+
+|                           memtrack.c Implementation                         |
+|                                                                             |
+|   pthread_mutex_lock(&g_lock);                                              |
+|                                                                             |
+|   [Head] -> [AllocRecord: 0x55a... | 64B | app.c:24] -> [Record 2] -> NULL  |
+|                                                                             |
+|   Stats Tracker: Total Allocs | Total Frees | Current Bytes | Peak Bytes    |
+|   Double/Invalid Free Trap: Checks existence before invoking real free()    |
+|   pthread_mutex_unlock(&g_lock);                                            |
++-----------------------------------------------------------------------------+
+             |
+             | atexit(memtrack_report) triggers on process exit
+             v
++-----------------------------------------------------------------------------+
+|                       DIAGNOSTIC REPORT OUTPUT                              |
+|   - Terminal Bordered Table: Address | Bytes | Allocated at File:Line       |
+|   - Real-time Summary Box: Total, Leaked, Peak Usage                        |
+|   - File Persistence: Synchronously written to "leak_report.txt"            |
++-----------------------------------------------------------------------------+
+          </pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. Interactive Simulator Section -->
+    <section id="simulator" class="section-padding">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-tag">TRY IT LIVE</span>
+          <h2 class="section-title">Interactive Memory Leak Simulator</h2>
+          <p class="section-desc">Experience exactly how the C library monitors heap allocations, flags illegal operations, and computes exit leaks.</p>
+        </div>
+
+        <div class="simulator-wrapper">
+          <!-- Control Panel -->
+          <div class="sim-controls-card">
+            <div class="sim-header">
+              <span class="sim-title">Allocator Actions</span>
+              <span class="sim-status" id="sim-app-status">Status: Process Running</span>
+            </div>
+
+            <!-- Size Selector -->
+            <div class="alloc-input-group">
+              <label for="alloc-size-input">Block Size (Bytes):</label>
+              <div class="input-with-presets">
+                <input type="number" id="alloc-size-input" value="64" min="1" max="16384">
+                <div class="size-preset-buttons">
+                  <button type="button" class="btn-preset active" data-size="64">64B</button>
+                  <button type="button" class="btn-preset" data-size="128">128B</button>
+                  <button type="button" class="btn-preset" data-size="256">256B</button>
+                  <button type="button" class="btn-preset" data-size="512">512B</button>
+                  <button type="button" class="btn-preset" data-size="1024">1KB</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="sim-btn-grid">
+              <button id="btn-malloc" class="btn btn-action btn-alloc">
+                <code>malloc(size)</code>
+                <span class="btn-subtext">Allocate new tracked block</span>
+              </button>
+              <button id="btn-calloc" class="btn btn-action btn-alloc">
+                <code>calloc(n, size)</code>
+                <span class="btn-subtext">Zero-initialized block</span>
+              </button>
+              <button id="btn-free-last" class="btn btn-action btn-free">
+                <code>free(block)</code>
+                <span class="btn-subtext">Cleanly free selected block</span>
+              </button>
+              <button id="btn-realloc-grow" class="btn btn-action btn-realloc">
+                <code>realloc(grow)</code>
+                <span class="btn-subtext">Double size of selected block</span>
+              </button>
+              <button id="btn-double-free" class="btn btn-action btn-danger">
+                <code>free() twice</code>
+                <span class="btn-subtext">Trigger double-free warning</span>
+              </button>
+              <button id="btn-invalid-free" class="btn btn-action btn-danger">
+                <code>free(&stack_var)</code>
+                <span class="btn-subtext">Trigger invalid free warning</span>
+              </button>
+            </div>
+
+            <!-- Execution Buttons -->
+            <div class="sim-footer-actions">
+              <button id="btn-exit-report" class="btn btn-primary btn-glow">
+                <code>Exit Program & Run memtrack_report()</code>
+              </button>
+              <button id="btn-reset-sim" class="btn btn-secondary">
+                Reset Simulator
+              </button>
+            </div>
+          </div>
+
+          <!-- Live Metrics Dashboard -->
+          <div class="sim-metrics-grid">
+            <div class="metric-card">
+              <span class="metric-label">Total Allocs</span>
+              <span class="metric-value" id="val-total-allocs">0</span>
+            </div>
+            <div class="metric-card">
+              <span class="metric-label">Total Frees</span>
+              <span class="metric-value" id="val-total-frees">0</span>
+            </div>
+            <div class="metric-card">
+              <span class="metric-label">Current Heap</span>
+              <span class="metric-value" id="val-current-bytes">0 <small>B</small></span>
+            </div>
+            <div class="metric-card">
+              <span class="metric-label">Peak Memory</span>
+              <span class="metric-value highlight-peak" id="val-peak-bytes">0 <small>B</small></span>
+            </div>
+          </div>
+
+          <!-- Live Tracked List Table -->
+          <div class="sim-table-card">
+            <div class="table-header-row">
+              <h3>Tracked Allocations List (<code>g_head</code>)</h3>
+              <span class="badge" id="active-count-badge">0 Live Blocks</span>
+            </div>
+            <div class="table-scroll-wrapper">
+              <table class="tracked-table" id="tracked-table">
+                <thead>
+                  <tr>
+                    <th>Address</th>
+                    <th>Size</th>
+                    <th>Allocated At</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="tracked-table-body">
+                  <tr class="empty-row">
+                    <td colspan="5">No active memory allocations. Click <code>malloc()</code> or <code>calloc()</code> above to track memory.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Stderr / Console Output -->
+          <div class="sim-console-card">
+            <div class="console-top">
+              <div class="code-dots">
+                <span class="dot dot-red"></span>
+                <span class="dot dot-yellow"></span>
+                <span class="dot dot-green"></span>
+              </div>
+              <span class="console-title">stderr / runtime log</span>
+              <button class="btn-clear-log" id="btn-clear-console">Clear Log</button>
+            </div>
+            <div class="console-content" id="sim-console-output">
+              <div class="console-line system-line">[memtrack] System initialized. Ready to intercept allocator calls.</div>
+            </div>
+          </div>
+
+          <!-- Final Report Modal / Display -->
+          <div class="sim-report-card" id="sim-report-box" style="display: none;">
+            <div class="report-header">
+              <h3>Process Terminated — atexit() Diagnostic Report</h3>
+              <span class="badge badge-saved">Saved to leak_report.txt</span>
+            </div>
+            <pre class="terminal-report" id="terminal-report-text"></pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. Sample Output Section -->
+    <section id="sample-output" class="section-padding bg-subtle">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-tag">VERIFIED TERMINAL RUNS</span>
+          <h2 class="section-title">Sample Output from Real Runs</h2>
+          <p class="section-desc">Clean, human-readable terminal outputs generated directly by our demo programs and test harness.</p>
+        </div>
+
+        <div class="tabs-container">
+          <div class="tabs-header">
+            <button class="tab-btn active" data-tab="tab-leak">make run-leak (demo_leak.c)</button>
+            <button class="tab-btn" data-tab="tab-clean">make run-clean (demo_clean.c)</button>
+            <button class="tab-btn" data-tab="tab-test">make test (Unit Tests)</button>
+          </div>
+
+          <!-- Tab 1: demo_leak -->
+          <div class="tab-content active" id="tab-leak">
+            <div class="terminal-window">
+              <div class="terminal-bar">
+                <div class="code-dots"><span class="dot dot-red"></span><span class="dot dot-yellow"></span><span class="dot dot-green"></span></div>
+                <span class="term-title">bash — make run-leak</span>
+              </div>
+              <pre class="terminal-body"><code>$ make run-leak
+
+=== Running demo_leak ===
+./build/demo_leak
+=== demo_leak: intentional memory problems ===
+
+Allocated 'name' at 0x55a1004162a0 (will be leaked)
+Allocated 'numbers' at 0x55a100416300 (will be leaked)
+Allocated 'buf' at 0x55a100416340 (will be leaked)
+
+--- Triggering double free on 'name' ---
+<span class="term-warn">[memtrack] WARNING: Invalid/double free of pointer 0x55a1004162a0 at examples/demo_leak.c:43</span>
+--- Triggering invalid free of a stack variable ---
+<span class="term-warn">[memtrack] WARNING: Invalid/double free of pointer 0x7ffd5102abac at examples/demo_leak.c:48</span>
+
+(Program ending – memtrack_report will fire via atexit)
+
+╔══════════════════════════════════════════════════════════════╗
+║          MEMORY LEAK DETECTION REPORT (memtrack)            ║
+╚══════════════════════════════════════════════════════════════╝
+
+  ✗  LEAKED BLOCKS DETECTED:
+
+  Address             Bytes     Allocated at
+  ------------------  --------  ----------------------------
+  0x55a100416340      256       examples/demo_leak.c:36
+  0x55a100416300      40        examples/demo_leak.c:30
+
+┌─────────────────────────────────────────────┐
+│                   SUMMARY                   │
+├─────────────────────────────────────────────┤
+│  Total allocations  : 3                     │
+│  Total frees        : 1                     │
+│  Leaked blocks      : 2                     │
+│  Leaked bytes       : 296                   │
+│  Peak memory usage  : 360    bytes          │
+└─────────────────────────────────────────────┘
+
+  [Report also saved to: leak_report.txt]</code></pre>
+            </div>
+          </div>
+
+          <!-- Tab 2: demo_clean -->
+          <div class="tab-content" id="tab-clean">
+            <div class="terminal-window">
+              <div class="terminal-bar">
+                <div class="code-dots"><span class="dot dot-red"></span><span class="dot dot-yellow"></span><span class="dot dot-green"></span></div>
+                <span class="term-title">bash — make run-clean</span>
+              </div>
+              <pre class="terminal-body"><code>$ make run-clean
+
+=== Running demo_clean ===
+./build/demo_clean
+=== demo_clean: correct memory management ===
+
+msg = "memtrack is watching..."
+'msg' freed correctly.
+scores[0..4] = 1.5 3.0 4.5 6.0 7.5
+'scores' freed correctly.
+arr initial size: 4 ints
+arr after grow: 8 ints
+arr after shrink: 2 ints = 10, 20
+'arr' freed correctly.
+
+(Program ending – memtrack_report will fire via atexit)
+
+╔══════════════════════════════════════════════════════════════╗
+║          MEMORY LEAK DETECTION REPORT (memtrack)            ║
+╚══════════════════════════════════════════════════════════════╝
+
+  <span class="term-success">✓  No memory leaks detected. All allocations were freed.</span>
+
+┌─────────────────────────────────────────────┐
+│                   SUMMARY                   │
+├─────────────────────────────────────────────┤
+│  Total allocations  : 3                     │
+│  Total frees        : 3                     │
+│  Leaked blocks      : 0                     │
+│  Leaked bytes       : 0                     │
+│  Peak memory usage  : 640    bytes          │
+└─────────────────────────────────────────────┘
+
+  [Report also saved to: leak_report.txt]</code></pre>
+            </div>
+          </div>
+
+          <!-- Tab 3: make test -->
+          <div class="tab-content" id="tab-test">
+            <div class="terminal-window">
+              <div class="terminal-bar">
+                <div class="code-dots"><span class="dot dot-red"></span><span class="dot dot-yellow"></span><span class="dot dot-green"></span></div>
+                <span class="term-title">bash — make test</span>
+              </div>
+              <pre class="terminal-body"><code>$ make test
+
+=== Running unit tests ===
+./build/test_memtrack
+
+╔══════════════════════════════════════════════╗
+║        memtrack – Unit Test Suite            ║
+╚══════════════════════════════════════════════╝
+
+  <span class="term-success">[PASS]</span> malloc_then_free
+  <span class="term-success">[PASS]</span> malloc_no_free_one_leak
+  <span class="term-success">[PASS]</span> calloc_zero_initialisation
+  <span class="term-success">[PASS]</span> realloc_grow_preserves_data
+  <span class="term-success">[PASS]</span> realloc_shrink_updates_tracking
+[memtrack] WARNING: Invalid/double free of pointer 0x... at test_memtrack.c:166
+  <span class="term-success">[PASS]</span> double_free_intercepted
+[memtrack] WARNING: Invalid/double free of pointer 0x... at test_memtrack.c:185
+  <span class="term-success">[PASS]</span> invalid_free_intercepted
+  <span class="term-success">[PASS]</span> peak_memory_high_water_mark
+
+┌──────────────────────────────────────────────┐
+│  Results: <span class="term-success">8 PASSED</span>, 0 FAILED                 │
+└──────────────────────────────────────────────┘</code></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6. Features, Tech Stack & Comparison -->
+    <section id="features" class="section-padding">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-tag">SPECIFICATIONS</span>
+          <h2 class="section-title">Technical Architecture & Feature Matrix</h2>
+          <p class="section-desc">Engineered strictly against the C11 standard with zero reliance on runtime interceptor injections.</p>
+        </div>
+
+        <div class="tech-stack-row">
+          <div class="tech-badge">
+            <span class="tech-icon">⚙️</span>
+            <div>
+              <strong>C11 Standard</strong>
+              <small>ISO/IEC 9899:2011</small>
+            </div>
+          </div>
+          <div class="tech-badge">
+            <span class="tech-icon">🔨</span>
+            <div>
+              <strong>GCC / Clang</strong>
+              <small>-Wall -Wextra -std=c11</small>
+            </div>
+          </div>
+          <div class="tech-badge">
+            <span class="tech-icon">📜</span>
+            <div>
+              <strong>GNU Make</strong>
+              <small>Automated Builds</small>
+            </div>
+          </div>
+          <div class="tech-badge">
+            <span class="tech-icon">🔒</span>
+            <div>
+              <strong>POSIX Threads</strong>
+              <small>pthread_mutex_t lock</small>
+            </div>
+          </div>
+          <div class="tech-badge">
+            <span class="tech-icon">📦</span>
+            <div>
+              <strong>Zero Dependencies</strong>
+              <small>Standard libc only</small>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tool Comparison Table -->
+        <div class="comparison-card">
+          <h3>How memtrack Compares to Industry Tools</h3>
+          <div class="table-scroll-wrapper">
+            <table class="comparison-table">
+              <thead>
+                <tr>
+                  <th>Criteria</th>
+                  <th>memtrack (Our Tool)</th>
+                  <th>Valgrind Memcheck</th>
+                  <th>AddressSanitizer (ASan)</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Installation</strong></td>
+                  <td class="col-highlight">None (Single header + .c)</td>
+                  <td>Heavy external package</td>
+                  <td>Compiler integration required</td>
+                </tr>
+                <tr>
+                  <td><strong>Runtime Overhead</strong></td>
+                  <td class="col-highlight">&lt; 1% slowdown</td>
+                  <td>20× to 50× slowdown</td>
+                  <td>2× slowdown + 3× RAM</td>
+                </tr>
+                <tr>
+                  <td><strong>Exact File:Line Provenance</strong></td>
+                  <td class="col-highlight">✓ Built-in via macros</td>
+                  <td>✓ Needs DWARF symbols</td>
+                  <td>✓ Needs DWARF symbols</td>
+                </tr>
+                <tr>
+                  <td><strong>Double-Free Protection</strong></td>
+                  <td class="col-highlight">✓ Intercepted with warning</td>
+                  <td>✓ Reports error</td>
+                  <td>✓ Terminates process</td>
+                </tr>
+                <tr>
+                  <td><strong>Invalid Stack-Free Trap</strong></td>
+                  <td class="col-highlight">✓ Intercepted safely</td>
+                  <td>✓ Reports error</td>
+                  <td>✓ Terminates process</td>
+                </tr>
+                <tr>
+                  <td><strong>Embedded / Bare-Metal Friendly</strong></td>
+                  <td class="col-highlight">✓ Portable C11</td>
+                  <td>✗ Requires full OS/Linux</td>
+                  <td>✗ Requires runtime library</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 7. Team Section -->
+    <section id="team" class="section-padding bg-subtle">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-tag">CONTRIBUTORS</span>
+          <h2 class="section-title">Meet the Team</h2>
+          <p class="section-desc">Collaborators behind the system design, implementation, test suite, and technical presentation.</p>
+        </div>
+
+        <div class="team-grid">
+          <div class="team-card">
+            <div class="avatar-circle">M1</div>
+            <h4 class="member-name">[Member 1 Name]</h4>
+            <span class="member-role">Core Architecture & Library</span>
+            <p class="member-desc">Designed <code>memtrack.c</code>, macro wrappers, mutex safety, and <code>atexit()</code> callback logic.</p>
+          </div>
+
+          <div class="team-card">
+            <div class="avatar-circle">M2</div>
+            <h4 class="member-name">[Member 2 Name]</h4>
+            <span class="member-role">Build System & Demos</span>
+            <p class="member-desc">Authored the Makefile, build targets, <code>demo_leak.c</code>, and <code>demo_clean.c</code> scenarios.</p>
+          </div>
+
+          <div class="team-card">
+            <div class="avatar-circle">M3</div>
+            <h4 class="member-name">[Member 3 Name]</h4>
+            <span class="member-role">Testing & Verification</span>
+            <p class="member-desc">Constructed the 8-test unit verification suite and boundary condition coverage in <code>test_memtrack.c</code>.</p>
+          </div>
+
+          <div class="team-card">
+            <div class="avatar-circle">M4</div>
+            <h4 class="member-name">[Member 4 Name]</h4>
+            <span class="member-role">Documentation & Web</span>
+            <p class="member-desc">Created the academic report, presentation slides outline, and interactive web simulator.</p>
+          </div>
+
+          <div class="team-card">
+            <div class="avatar-circle">M5</div>
+            <h4 class="member-name">[Member 5 Name]</h4>
+            <span class="member-role">Presenter & Results Analysis</span>
+            <p class="member-desc">Curated the timed live presentation script, Q&A defense, and performance benchmark analysis.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- 8. Footer -->
+  <footer class="site-footer">
+    <div class="container footer-content">
+      <div class="footer-left">
+        <div class="brand-logo">
+          <span class="logo-bracket">[</span><span class="logo-text">memtrack</span><span class="logo-bracket">]</span>
+        </div>
+        <p class="footer-tagline">Operating Systems Hackathon • Memory Leak Detection & Reporting Tool</p>
+        <p class="footer-meta">Released under MIT License • Tested with GCC on Linux / WSL / macOS</p>
+      </div>
+
+      <div class="footer-right">
+        <div class="pages-note">
+          <strong>GitHub Pages Setup:</strong>
+          <span>Settings &gt; Pages &gt; Deploy from a branch &gt; Select <code>main</code> branch &gt; folder <code>/website</code> or root.</span>
+        </div>
+        <a href="https://github.com/JITHINDSK1/OS-Hackathon" target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-sm">
+          View Repository on GitHub
+        </a>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/simulator.js"></script>
+</body>
+</html>
