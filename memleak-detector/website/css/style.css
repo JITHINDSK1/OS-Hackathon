@@ -42,10 +42,7 @@
 html {
   scroll-behavior: smooth;
   font-family: var(--font-sans);
-  background-color: var(--bg-primary);
-  /* Grey dot pattern on pure white background */
-  background-image: radial-gradient(#cbd5e1 1.25px, transparent 1.25px);
-  background-size: 20px 20px;
+  background-color: #ffffff;
   color: var(--text-main);
   line-height: 1.6;
 }
@@ -91,9 +88,7 @@ code {
 }
 
 .bg-subtle {
-  background-color: #fcfcfc;
-  background-image: radial-gradient(#e2e8f0 1.25px, transparent 1.25px);
-  background-size: 20px 20px;
+  background-color: #f9fafb;
   border-top: 1.5px solid var(--border-dark);
   border-bottom: 1.5px solid var(--border-dark);
 }
